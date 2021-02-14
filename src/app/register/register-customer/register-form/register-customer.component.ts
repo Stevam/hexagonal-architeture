@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Customer } from '../models/Customer';
 import { Service } from '../service/service';
@@ -8,30 +8,59 @@ import { Service } from '../service/service';
   templateUrl: './register-customer.component.html',
   styleUrls: ['./register-customer.component.css']
 })
-export class RegisterCustomerComponent implements OnInit {
+export class RegisterCustomerComponent implements OnChanges {
 
-  status: boolean = false;
+  @Output() openSignUp = new EventEmitter<boolean>();
+  @Input() customer: Customer;
+  loading: boolean = false;
   registerForm: FormGroup;
-  constructor( private fb: FormBuilder, private service: Service ) { }
+  mask: string = '000.000.000-00';
 
-  ngOnInit(): void {
+  constructor(private fb: FormBuilder, private service: Service<Customer>) { }
+
+  ngOnChanges() {
     this.registerForm = this.fb.group({
       nome: ['', [Validators.required]],
       cpf: ['', [Validators.required]]
     })
+    if (this.customer) { this.fillForm(this.customer) }
   }
 
   create() {
-    this.status = true;
-    if(this.registerForm.valid){
-      let customer = Object.assign(new Customer(), this.registerForm.value)
-      this.service.create(customer).subscribe(sucess => {
-        alert('Registro Criado Com Sucesso');
-        this.status = false
+    this.loading = true;
+
+    if (this.registerForm.valid) {
+
+      let customer = Object.assign(new Customer(), this.customer, this.registerForm.value)
+
+      this.service.create(customer).subscribe((customer: Customer) => {
+        this.customer.id ? alert('Registro atualizado com sucesso') : alert('Registro criado com sucesso');
+        this.customer = customer;
+        this.loading = false;
+        this.openSignUp.emit(false);
       })
-    }else{
+
+    } else {
       alert('Preencha os campos')
+      this.loading = false
     }
+  }
+
+  delete(customer: Customer) {
+    this.service.delete(customer.id).subscribe(
+      () => {
+        alert('Registro apagado com sucesso');
+        this.openSignUp.emit(false);
+      })
+  }
+
+  backToList = () => { this.openSignUp.emit(false) }
+
+  fillForm(customer: Customer) {
+    this.registerForm.patchValue({
+      nome: customer.nome,
+      cpf: customer.cpf
+    })
   }
 
 }

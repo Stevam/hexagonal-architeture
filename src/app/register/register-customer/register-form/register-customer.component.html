@@ -1,26 +1,34 @@
-<form class="form" [formGroup]="registerForm">
+<form class="form was-validated" [formGroup]="registerForm">
     <div class="card mt-5">
         <div class="card-body">
 
             <h5 class="card-title">Sign up</h5>
+
             <div class="form-group">
                 <label class="card-subtitle mb-2 text-muted" for="nome">Name</label>
                 <input type="text" formControlName="nome" placeholder="type your name" class="form-control" required />
             </div>
-
             <div class="form-group">
                 <label class="card-subtitle mb-2 text-muted" for="cpf">CPF</label>
-                <input type="text" formControlName="cpf" placeholder="type your cpf" class="form-control" required />
+                <input [mask]="mask" type="text" formControlName="cpf" placeholder="type your cpf" class="form-control"
+                    required />
             </div>
-            <button class="btn btn-info" type="button" (click)='create()'>
-                <div *ngIf='status'>
+
+            <button class="btn btn-secondary btn-sm float-left" type="button" (click)='backToList()'>
+                Return
+            </button>
+            <button class="btn btn-info btn-sm float-right" type="button" (click)='create()'
+                [disabled]="!registerForm.valid">
+                <div *ngIf='loading'>
                     <span class="spinner-grow spinner-grow-sm" role="true" aria-hidden="true"></span>
                     Loading...
                 </div>
-                <div *ngIf='!status'>
+                <div *ngIf='!loading'>
                     Send
                 </div>
             </button>
+            <button *ngIf="customer.id" type="button" class="btn btn-outline-danger btn-sm float-right mr-2"
+                (click)="delete(customer)">Delete</button>
         </div>
     </div>
 </form>

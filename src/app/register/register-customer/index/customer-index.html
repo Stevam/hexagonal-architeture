@@ -1,0 +1,16 @@
+<div *ngIf="!openRegister" class="card mt-5">
+    <div class="card-body">
+        <button class="btn btn-info float-right mb-4" type="button" (click)="signUp()">Sign up</button>
+        <div class="list-group col-md-12 p-0">
+            <button *ngFor="let customer of customers" (click)="onSelect(customer)" type="button" class="list-group-item list-group-item-action">
+                <div class="col-11">
+                    <label class="col-12 p-0 m-0">{{customer.nome | uppercase }}</label>
+                    <span class="badge p-0 text-left">{{customer.cpf | mask: '000.000.000-00'}} </span>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+<div *ngIf="openRegister">
+    <app-register-customer (openSignUp)="openSignUp(status)" [customer]="customer"></app-register-customer>
+</div>
